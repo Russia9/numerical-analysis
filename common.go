@@ -1,5 +1,7 @@
 package numericalanalysis
 
+import "errors"
+
 type Point2D struct {
 	X float64
 	Y float64
@@ -12,3 +14,5 @@ type Point3D struct {
 	Y float64
 	Z float64
 }
+
+var ErrNoSolution = errors.New("no solution")
