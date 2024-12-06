@@ -2,12 +2,90 @@ package main
 
 import (
 	"image/color"
+	"math"
 
 	numericalanalysis "github.com/Russia9/numerical-analysis"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 )
 
+func main() {
+	p := plot.New()
+
+	p.Title.Text = "DE solution test"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+	p.Add(plotter.NewGrid())
+	p.X.Min = -0.5
+	p.X.Max = 4
+	p.Y.Min = -0.5
+	p.Y.Max = 4
+
+	funcSystem := []func(x float64, y ...float64) float64{
+		func(x float64, y ...float64) float64 {
+			return -2 * x * y[0]
+		},
+	}
+	start := []float64{2}
+
+	// Add exact solution
+	exact := plotter.NewFunction(func(x float64) float64 { return 2 * math.Exp(-1*x*x) })
+	exact.Color = color.RGBA{B: 255, A: 255}
+	exact.Samples = 1000
+	p.Add(exact)
+
+	// Euler's method
+	result, _ := numericalanalysis.EulerMethod(funcSystem, start, 0, 3, 0.1)
+	for _, function := range result {
+		xys := make(plotter.XYs, len(function))
+		for i, point := range function {
+			xys[i] = struct{ X, Y float64 }{point.X, point.Y}
+		}
+		line, err := plotter.NewLine(xys)
+		line.Color = color.RGBA{R: 255, A: 255}
+		if err != nil {
+			panic(err)
+		}
+
+		p.Add(line)
+	}
+
+	// Modified Euler's method
+	result, _ = numericalanalysis.ModifiedEulerMethod(funcSystem, start, 0, 3, 0.1)
+	for _, function := range result {
+		xys := make(plotter.XYs, len(function))
+		for i, point := range function {
+			xys[i] = struct{ X, Y float64 }{point.X, point.Y}
+		}
+		line, err := plotter.NewLine(xys)
+		line.Color = color.RGBA{G: 255, A: 255}
+		if err != nil {
+			panic(err)
+		}
+
+		p.Add(line)
+	}
+
+	// Runge-Kutta method
+	result, _ = numericalanalysis.RungeKuttaMethod(funcSystem, start, 0, 3, 0.1)
+	for _, function := range result {
+		xys := make(plotter.XYs, len(function))
+		for i, point := range function {
+			xys[i] = struct{ X, Y float64 }{point.X, point.Y}
+		}
+		line, err := plotter.NewLine(xys)
+		line.Color = color.RGBA{B: 255, R: 255, A: 255}
+		if err != nil {
+			panic(err)
+		}
+
+		p.Add(line)
+	}
+
+	p.Save(400, 400, "differential.png")
+}
+
+/* Interpolation
 func main() {
 	p := plot.New()
 
@@ -112,3 +190,4 @@ func main() {
 
 	p.Save(400, 400, "lagrange.png")
 }
+*/

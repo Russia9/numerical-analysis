@@ -2,19 +2,19 @@ package numericalanalysis
 
 type Matrix [][]float64
 
-func (m Matrix) Det() float64 {
+func (m Matrix) Det() (float64, error) {
 	// Check if the matrix is square
-	if len(m) != len(m[0]) {
-		panic("matrix is not square")
+	if len(m) == 0 || len(m) != len(m[0]) {
+		return 0, ErrWrongInput
 	}
 
 	// Base cases
 	n := len(m)
 	if n == 1 {
-		return m[0][0]
+		return m[0][0], nil
 	}
 	if n == 2 {
-		return m[0][0]*m[1][1] - m[0][1]*m[1][0]
+		return m[0][0]*m[1][1] - m[0][1]*m[1][0], nil
 	}
 
 	// Recursive case
@@ -34,19 +34,24 @@ func (m Matrix) Det() float64 {
 		}
 
 		// Recursively calculate the determinant
+		submatrixDet, err := submatrix.Det()
+		if err != nil {
+			return 0, err
+		}
+
 		if i%2 == 0 {
-			det += m[0][i] * submatrix.Det()
+			det += m[0][i] * submatrixDet
 		} else {
-			det -= m[0][i] * submatrix.Det()
+			det -= m[0][i] * submatrixDet
 		}
 	}
 
-	return det
+	return det, nil
 }
 
-func (m Matrix) Add(n Matrix) Matrix {
+func (m Matrix) Add(n Matrix) (Matrix, error) {
 	if len(m) != len(n) || len(m[0]) != len(n[0]) {
-		panic("matrix size mismatch")
+		return nil, ErrWrongInput
 	}
 	result := make(Matrix, len(m))
 	for i := range m {
@@ -55,5 +60,5 @@ func (m Matrix) Add(n Matrix) Matrix {
 			result[i][j] = m[i][j] + n[i][j]
 		}
 	}
-	return result
+	return result, nil
 }
