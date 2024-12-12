@@ -56,11 +56,27 @@ func ModifiedEulerMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]
 		// Initialize new point
 		result[i] = make([]float64, len(f))
 
+		// Calculate k1
+		k1 := make([]float64, len(f))
+		for j := 0; j < len(f); j++ {
+			k1[j] = f[j](x0+float64(i-1)*h, result[i-1]...)
+		}
+
+		// Calculate k2
+		k2 := make([]float64, len(f))
+		for j := 0; j < len(f); j++ {
+			// Calculate input
+			inp := make([]float64, len(f))
+			for k := 0; k < len(f); k++ {
+				inp[k] = result[i-1][k] + h*k1[k]
+			}
+
+			k2[j] = f[j](x0+float64(i)*h, inp...)
+		}
+
 		// Calculate new point
 		for j := 0; j < len(f); j++ {
-			k1 := f[j](x0+float64(i-1)*h, result[i-1]...)
-			k2 := f[j](x0+float64(i)*h, result[i-1][0]+h*k1)
-			result[i][j] = result[i-1][j] + h*(k1+k2)/2
+			result[i][j] = result[i-1][j] + h*(k1[j]+k2[j])/2
 		}
 	}
 
@@ -94,13 +110,51 @@ func RungeKuttaMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]Poi
 		// Initialize new point
 		result[i] = make([]float64, len(f))
 
+		// Calculate k1
+		k1 := make([]float64, len(f))
+		for j := 0; j < len(f); j++ {
+			k1[j] = h * f[j](x0+float64(i-1)*h, result[i-1]...)
+		}
+
+		// Calculate k2
+		k2 := make([]float64, len(f))
+		for j := 0; j < len(f); j++ {
+			// Calculate input
+			inp := make([]float64, len(f))
+			for k := 0; k < len(f); k++ {
+				inp[k] = result[i-1][k] + k1[k]/2
+			}
+
+			k2[j] = h * f[j](x0+float64(i-1)*h+h/2, inp...)
+		}
+
+		// Calculate k3
+		k3 := make([]float64, len(f))
+		for j := 0; j < len(f); j++ {
+			// Calculate input
+			inp := make([]float64, len(f))
+			for k := 0; k < len(f); k++ {
+				inp[k] = result[i-1][k] + k2[k]/2
+			}
+
+			k3[j] = h * f[j](x0+float64(i-1)*h+h/2, inp...)
+		}
+
+		// Calculate k4
+		k4 := make([]float64, len(f))
+		for j := 0; j < len(f); j++ {
+			// Calculate input
+			inp := make([]float64, len(f))
+			for k := 0; k < len(f); k++ {
+				inp[k] = result[i-1][k] + k3[k]
+			}
+
+			k4[j] = h * f[j](x0+float64(i)*h, inp...)
+		}
+
 		// Calculate new point
 		for j := 0; j < len(f); j++ {
-			k1 := h * f[j](x0+float64(i-1)*h, result[i-1]...)
-			k2 := h * f[j](x0+float64(i-1)*h+h/2, result[i-1][0]+k1/2)
-			k3 := h * f[j](x0+float64(i-1)*h+h/2, result[i-1][0]+k2/2)
-			k4 := h * f[j](x0+float64(i)*h, result[i-1][0]+k3)
-			result[i][j] = result[i-1][j] + (k1+2*k2+2*k3+k4)/6
+			result[i][j] = result[i-1][j] + (k1[j]+2*k2[j]+2*k3[j]+k4[j])/6
 		}
 	}
 
