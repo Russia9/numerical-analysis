@@ -1,5 +1,7 @@
 package numericalanalysis
 
+import "math"
+
 type FuncSystem = []func(x float64, y ...float64) float64
 
 func EulerMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]Point2D, error) {
@@ -9,7 +11,7 @@ func EulerMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]Point2D,
 	}
 
 	// Calculate number of steps
-	n := int((xN - x0) / h)
+	n := int(math.Floor((xN-x0)/h)) + 1
 
 	// Initialize result
 	result := make([][]float64, n)
@@ -45,7 +47,7 @@ func ModifiedEulerMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]
 	}
 
 	// Calculate number of steps
-	n := int((xN - x0) / h)
+	n := int(math.Floor((xN-x0)/h)) + 1
 
 	// Initialize result
 	result := make([][]float64, n)
@@ -99,7 +101,7 @@ func RungeKuttaMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]Poi
 	}
 
 	// Calculate number of steps
-	n := int((xN - x0) / h)
+	n := int(math.Floor((xN-x0)/h)) + 1
 
 	// Initialize result
 	result := make([][]float64, n)
