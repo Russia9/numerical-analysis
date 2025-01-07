@@ -27,3 +27,4 @@ go.work
 # MacOS files
 .DS_Store
 
+# PNG files (Test diagrams)
