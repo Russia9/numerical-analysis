@@ -11,7 +11,7 @@ func EulerMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]Point2D,
 	}
 
 	// Calculate number of steps
-	n := int(math.Floor((xN-x0)/h)) + 1
+	n := int(math.Floor((xN-x0)/h)) + 2
 
 	// Initialize result
 	result := make([][]float64, n)
@@ -47,7 +47,7 @@ func ModifiedEulerMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]
 	}
 
 	// Calculate number of steps
-	n := int(math.Floor((xN-x0)/h)) + 1
+	n := int(math.Floor((xN-x0)/h)) + 2
 
 	// Initialize result
 	result := make([][]float64, n)
@@ -101,7 +101,7 @@ func RungeKuttaMethod(f FuncSystem, start []float64, x0, xN, h float64) ([][]Poi
 	}
 
 	// Calculate number of steps
-	n := int(math.Floor((xN-x0)/h)) + 1
+	n := int(math.Floor((xN-x0)/h)) + 2
 
 	// Initialize result
 	result := make([][]float64, n)
