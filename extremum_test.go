@@ -32,9 +32,14 @@ func TestBisectionExtremum(t *testing.T) {
 	}
 
 	for name, test := range tests {
-		x := numericalanalysis.BisectionExtremum(test.f, test.a, test.b, 1e-6, test.max)
-		if math.Abs(x-test.x) > 1e-6 {
-			t.Errorf("BisectionExtremum(%s) = %v, want %v", name, x, test.x)
-		}
+		t.Run(name, func(t *testing.T) {
+			x, err := numericalanalysis.BisectionExtremum(test.f, test.a, test.b, 1e-6, test.max)
+			if math.Abs(x-test.x) > 1e-6 {
+				t.Errorf("BisectionExtremum(%s) = %v, want %v", name, x, test.x)
+			}
+			if err != nil {
+				t.Errorf("BisectionExtremum(%s) returned error: %v", name, err)
+			}
+		})
 	}
 }

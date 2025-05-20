@@ -1,12 +1,21 @@
 package numericalanalysis
 
-import "math"
+import (
+	"math"
+)
 
-func BisectionExtremum(f Func1D, a, b float64, tol float64, max bool) float64 {
+func BisectionExtremum(f Func1D, a, b float64, tol float64, max bool) (float64, error) {
+	// Check input
+	if a >= b || tol <= 0 {
+		return 0, ErrWrongInput
+	}
+
+	// Loop until tolerance is met
 	for math.Abs(b-a) > tol {
+		// Calculate midpoint
 		x := (a + b) / 2
 
-		if f(x-tol) > f(x+tol) {
+		if f(x-tol) > f(x+tol) { // Check if the function value at x-tol is greater than at x+tol
 			if max {
 				b = x
 			} else {
@@ -21,5 +30,5 @@ func BisectionExtremum(f Func1D, a, b float64, tol float64, max bool) float64 {
 		}
 	}
 
-	return (a + b) / 2
+	return (a + b) / 2, nil
 }
