@@ -6,10 +6,10 @@ func LagrangeInterpolation1D(points []Point2D) Func1D {
 	// Lagrange basis polynomials
 	l := make([]Func1D, n)
 
-	for i := 0; i < n; i++ {
+	for i := range n {
 		l[i] = func(x float64) float64 {
 			result := 1.0
-			for j := 0; j < n; j++ {
+			for j := range n {
 				if j != i {
 					result *= (x - points[j].X) / (points[i].X - points[j].X)
 				}
@@ -21,7 +21,7 @@ func LagrangeInterpolation1D(points []Point2D) Func1D {
 	// Lagrange interpolation
 	return func(x float64) float64 {
 		result := 0.0
-		for i := 0; i < n; i++ {
+		for i := range n {
 			result += l[i](x)
 		}
 		return result
@@ -38,7 +38,7 @@ func LinearInterpolation1D(points []Point2D) Func1D {
 		} else if x >= points[n-1].X {
 			i = n - 2
 		} else {
-			for i = 0; i < n-1; i++ {
+			for i = range n - 1 {
 				if points[i].X <= x && x < points[i+1].X {
 					break
 				}

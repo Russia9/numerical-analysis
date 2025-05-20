@@ -19,12 +19,12 @@ func (m Matrix) Det() (float64, error) {
 
 	// Recursive case
 	var det float64
-	for i := 0; i < n; i++ {
+	for i := range n {
 		// Create submatrix b by removing the first row and i-th column
 		submatrix := make(Matrix, n-1)
-		for j := 0; j < n-1; j++ {
+		for j := range n - 1 {
 			submatrix[j] = make([]float64, n-1)
-			for k := 0; k < n-1; k++ {
+			for k := range n - 1 {
 				if k < i {
 					submatrix[j][k] = m[j+1][k]
 				} else {
