@@ -1,7 +1,5 @@
 package numericalanalysis
 
-import "fmt"
-
 type FuncSystem = []func(x float64, y ...float64) float64
 
 func EulerMethod(
@@ -45,7 +43,6 @@ func EulerMethod(
 		}
 
 		// Calculate new point using Euler's method
-		fmt.Println("---- x=", x[i], " h=", h)
 		for j := range f {
 			result[i][j] = result[i-1][j] + h*f[j](x[i-1], result[i-1]...)
 		}
