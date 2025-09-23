@@ -1,6 +1,6 @@
 package numericalanalysis
 
-type FuncSystem = []func(x float64, y ...float64) float64
+type FuncSystem = []FuncND
 
 func EulerMethod(
 	f FuncSystem,
