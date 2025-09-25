@@ -1,5 +1,7 @@
 package numericalanalysis
 
+import "math"
+
 type FuncSystem = []FuncND
 
 func EulerMethod(
@@ -177,6 +179,9 @@ func RungeKuttaMethod(
 			if x[i-1] < ch && ch < x[i] {
 				h = ch - x[i-1]
 				x[i] = ch
+			} else if math.Abs(x[i-1]-ch) < 10e-6 { // or if the last point was characteristic
+				h = x[i-2] + hBase - ch
+				x[i] = x[i-2] + hBase
 			}
 		}
 
