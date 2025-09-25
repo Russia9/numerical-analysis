@@ -35,21 +35,23 @@ func EulerMethod(
 		result = append(result, make([]float64, len(f)))
 		h := hBase
 		x = append(x, x[i-1]+h)
+		fromRight := false
 
 		// Check if we would step over any characteristic point
 		for _, ch := range xChar {
 			if x[i-1] < ch && ch < x[i] {
 				h = ch - x[i-1]
 				x[i] = ch
-			} else if math.Abs(x[i-1]-ch) < 10e-6 { // or if the last point was characteristic
+			} else if math.Abs(x[i-1]-ch) < 10e-8 { // or if the last point was characteristic
 				h = x[i-2] + hBase - ch
 				x[i] = x[i-2] + hBase
+				fromRight = true
 			}
 		}
 
 		// Calculate new point using Euler's method
 		for j := range f {
-			result[i][j] = result[i-1][j] + h*f[j](x[i-1], result[i-1]...)
+			result[i][j] = result[i-1][j] + h*f[j](fromRight, x[i-1], result[i-1]...)
 		}
 
 		i++
@@ -98,22 +100,24 @@ func ModifiedEulerMethod(
 		result = append(result, make([]float64, len(f)))
 		h := hBase
 		x = append(x, x[i-1]+h)
+		fromRight := false
 
 		// Check if we would step over any characteristic point
 		for _, ch := range xChar {
 			if x[i-1] < ch && ch < x[i] {
 				h = ch - x[i-1]
 				x[i] = ch
-			} else if math.Abs(x[i-1]-ch) < 10e-6 { // or if the last point was characteristic
+			} else if math.Abs(x[i-1]-ch) < 10e-8 { // or if the last point was characteristic
 				h = x[i-2] + hBase - ch
 				x[i] = x[i-2] + hBase
+				fromRight = true
 			}
 		}
 
 		// Calculate k1
 		k1 := make([]float64, len(f))
 		for j := range f {
-			k1[j] = f[j](x[i-1], result[i-1]...)
+			k1[j] = f[j](fromRight, x[i-1], result[i-1]...)
 		}
 
 		// Calculate k2
@@ -125,7 +129,7 @@ func ModifiedEulerMethod(
 				inp[k] = result[i-1][k] + h*k1[k]
 			}
 
-			k2[j] = f[j](x[i-1], inp...)
+			k2[j] = f[j](fromRight, x[i-1], inp...)
 		}
 
 		// Calculate new point
@@ -179,22 +183,24 @@ func RungeKuttaMethod(
 		result = append(result, make([]float64, len(f)))
 		h := hBase
 		x = append(x, x[i-1]+h)
+		fromRight := false
 
 		// Check if we would step over any characteristic point
 		for _, ch := range xChar {
 			if x[i-1] < ch && ch < x[i] {
 				h = ch - x[i-1]
 				x[i] = ch
-			} else if math.Abs(x[i-1]-ch) < 10e-6 { // or if the last point was characteristic
+			} else if math.Abs(x[i-1]-ch) < 10e-8 { // or if the last point was characteristic
 				h = x[i-2] + hBase - ch
 				x[i] = x[i-2] + hBase
+				fromRight = true
 			}
 		}
 
 		// Calculate k1
 		k1 := make([]float64, len(f))
 		for j := range f {
-			k1[j] = h * f[j](x[i-1], result[i-1]...)
+			k1[j] = h * f[j](fromRight, x[i-1], result[i-1]...)
 		}
 
 		// Calculate k2
@@ -206,7 +212,7 @@ func RungeKuttaMethod(
 				inp[k] = result[i-1][k] + k1[k]/2
 			}
 
-			k2[j] = h * f[j](x[i-1]+h/2, inp...)
+			k2[j] = h * f[j](fromRight, x[i-1]+h/2, inp...)
 		}
 
 		// Calculate k3
@@ -218,7 +224,7 @@ func RungeKuttaMethod(
 				inp[k] = result[i-1][k] + k2[k]/2
 			}
 
-			k3[j] = h * f[j](x[i-1]+h/2, inp...)
+			k3[j] = h * f[j](fromRight, x[i-1]+h/2, inp...)
 		}
 
 		// Calculate k4
@@ -230,7 +236,7 @@ func RungeKuttaMethod(
 				inp[k] = result[i-1][k] + k3[k]
 			}
 
-			k4[j] = h * f[j](x[i], inp...)
+			k4[j] = h * f[j](fromRight, x[i], inp...)
 		}
 
 		// Calculate new point

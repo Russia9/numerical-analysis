@@ -21,7 +21,7 @@ var testCases = []struct {
 	{
 		name: "simple_linear",
 		system: numericalanalysis.FuncSystem{
-			func(x float64, y ...float64) float64 { return 1 }, // dy/dx = 1, solution: y = x + C
+			func(fromRight bool, x float64, y ...float64) float64 { return 1 }, // dy/dx = 1, solution: y = x + C
 		},
 		x0:    0,
 		start: []float64{0},
@@ -35,7 +35,7 @@ var testCases = []struct {
 	{
 		name: "exponential_growth",
 		system: numericalanalysis.FuncSystem{
-			func(x float64, y ...float64) float64 { return y[0] }, // dy/dx = y, solution: y = e^x
+			func(fromRight bool, x float64, y ...float64) float64 { return y[0] }, // dy/dx = y, solution: y = e^x
 		},
 		x0:    0,
 		start: []float64{1},
@@ -49,8 +49,8 @@ var testCases = []struct {
 	{
 		name: "system_of_equations",
 		system: numericalanalysis.FuncSystem{
-			func(x float64, y ...float64) float64 { return y[1] },  // dx/dt = y
-			func(x float64, y ...float64) float64 { return -y[0] }, // dy/dt = -x
+			func(fromRight bool, x float64, y ...float64) float64 { return y[1] },  // dx/dt = y
+			func(fromRight bool, x float64, y ...float64) float64 { return -y[0] }, // dy/dt = -x
 		},
 		x0:    0,
 		start: []float64{1, 0}, // x(0) = 1, y(0) = 0
@@ -65,7 +65,7 @@ var testCases = []struct {
 	{
 		name: "with_characteristic_points",
 		system: numericalanalysis.FuncSystem{
-			func(x float64, y ...float64) float64 {
+			func(fromRight bool, x float64, y ...float64) float64 {
 				if x >= 1.5 {
 					return 2
 				}
@@ -181,7 +181,7 @@ func TestRungeKuttaMethod(t *testing.T) {
 func TestMethodAccuracy(t *testing.T) {
 	// Simple exponential growth: dy/dx = y, y(0) = 1, exact solution: y = e^x
 	system := numericalanalysis.FuncSystem{
-		func(x float64, y ...float64) float64 { return y[0] },
+		func(fromRight bool, x float64, y ...float64) float64 { return y[0] },
 	}
 
 	x0 := 0.0
@@ -230,8 +230,8 @@ func TestMethodAccuracy(t *testing.T) {
 func TestDifferentialMethodErrors(t *testing.T) {
 	t.Run("dimension_mismatch", func(t *testing.T) {
 		system := numericalanalysis.FuncSystem{
-			func(x float64, y ...float64) float64 { return 1 },
-			func(x float64, y ...float64) float64 { return 1 },
+			func(fromRight bool, x float64, y ...float64) float64 { return 1 },
+			func(fromRight bool, x float64, y ...float64) float64 { return 1 },
 		}
 		start := []float64{0} // Wrong dimension
 		stop := func(x float64, y ...float64) bool { return x >= 1 }
@@ -256,7 +256,7 @@ func TestDifferentialMethodErrors(t *testing.T) {
 // Test characteristic points handling
 func TestCharacteristicPoints(t *testing.T) {
 	system := numericalanalysis.FuncSystem{
-		func(x float64, y ...float64) float64 { return 1 },
+		func(fromRight bool, x float64, y ...float64) float64 { return 1 },
 	}
 
 	x0 := 0.0
