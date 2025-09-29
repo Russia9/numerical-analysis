@@ -40,21 +40,21 @@ func BisectionValue(f Func1D, a, b, value float64, tol float64, backward bool) (
 	}
 
 	// Loop until tolerance is met
-	for math.Abs(b-a) > tol {
+	for math.Abs(f((a+b)/2)-value) > tol {
 		// Calculate midpoint
 		x := (a + b) / 2
 
 		if f(x) > value { // Check if the function value at x is greater than the target value
 			if backward {
-				b = x
-			} else {
 				a = x
+			} else {
+				b = x
 			}
 		} else {
 			if backward {
-				a = x
-			} else {
 				b = x
+			} else {
+				a = x
 			}
 		}
 	}
