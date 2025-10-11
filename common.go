@@ -22,3 +22,5 @@ type Point3D struct {
 var ErrNoSolution = errors.New("no solution")
 
 var ErrWrongInput = errors.New("wrong input")
+
+var ErrSingularMatrix = errors.New("singular matrix")

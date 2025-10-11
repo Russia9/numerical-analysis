@@ -2,6 +2,9 @@ package numericalanalysis
 
 import "math"
 
+// sde.go
+// Systems of differential equations solvers
+
 type FuncSystem = []FuncND
 
 func EulerMethod(

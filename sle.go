@@ -1,5 +1,8 @@
 package numericalanalysis
 
+// sle.go
+// Systems of linear equations solvers
+
 func Cramer(matrix Matrix, free []float64) ([]float64, error) {
 	// Check input
 	if len(matrix) != len(free) {
@@ -17,10 +20,10 @@ func Cramer(matrix Matrix, free []float64) ([]float64, error) {
 
 	// Find solution
 	result := make([]float64, len(free))
-	for i := 0; i < len(free); i++ {
+	for i := range free {
 		// Replace i-th column with free vector
 		deltaIMatrix := make(Matrix, len(matrix))
-		for j := 0; j < len(matrix); j++ {
+		for j := range matrix {
 			deltaIMatrix[j] = make([]float64, len(matrix[j]))
 			copy(deltaIMatrix[j], matrix[j])
 			deltaIMatrix[j][i] = free[j]

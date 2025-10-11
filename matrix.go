@@ -1,6 +1,48 @@
 package numericalanalysis
 
+// matrix.go
+// Matrix operations
+
 type Matrix [][]float64
+
+func (m Matrix) Equal(n Matrix) bool {
+	if len(m) != len(n) || len(m[0]) != len(n[0]) {
+		return false
+	}
+	for i := range m {
+		for j := range m[i] {
+			if m[i][j] != n[i][j] {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (m Matrix) Add(n Matrix) (Matrix, error) {
+	if len(m) != len(n) || len(m[0]) != len(n[0]) {
+		return nil, ErrWrongInput
+	}
+	result := make(Matrix, len(m))
+	for i := range m {
+		result[i] = make([]float64, len(m[i]))
+		for j := range m[i] {
+			result[i][j] = m[i][j] + n[i][j]
+		}
+	}
+	return result, nil
+}
+
+func (m Matrix) Transpose() Matrix {
+	result := make(Matrix, len(m[0]))
+	for i := range m[0] {
+		result[i] = make([]float64, len(m))
+		for j := range m {
+			result[i][j] = m[j][i]
+		}
+	}
+	return result
+}
 
 func (m Matrix) Det() (float64, error) {
 	// Check if the matrix is square
@@ -49,16 +91,69 @@ func (m Matrix) Det() (float64, error) {
 	return det, nil
 }
 
-func (m Matrix) Add(n Matrix) (Matrix, error) {
-	if len(m) != len(n) || len(m[0]) != len(n[0]) {
+func (m Matrix) Mul(n Matrix) (Matrix, error) {
+	if len(m[0]) != len(n) {
 		return nil, ErrWrongInput
 	}
 	result := make(Matrix, len(m))
 	for i := range m {
-		result[i] = make([]float64, len(m[i]))
-		for j := range m[i] {
-			result[i][j] = m[i][j] + n[i][j]
+		result[i] = make([]float64, len(n[0]))
+		for j := range n[0] {
+			for k := range n {
+				result[i][j] += m[i][k] * n[k][j]
+			}
 		}
 	}
+	return result, nil
+}
+
+func (m Matrix) Inverse() (Matrix, error) {
+	det, err := m.Det()
+	if err != nil {
+		return nil, err
+	}
+	if det == 0 {
+		return nil, ErrSingularMatrix
+	}
+
+	n := len(m)
+	result := make(Matrix, n)
+	for i := range n {
+		result[i] = make([]float64, n)
+	}
+
+	for i := range n {
+		for j := range n {
+			// Create submatrix by removing the i-th row and j-th column
+			submatrix := make(Matrix, n-1)
+			for k := range n - 1 {
+				submatrix[k] = make([]float64, n-1)
+				for l := range n - 1 {
+					srcRow := k
+					if k >= i {
+						srcRow = k + 1
+					}
+					srcCol := l
+					if l >= j {
+						srcCol = l + 1
+					}
+					submatrix[k][l] = m[srcRow][srcCol]
+				}
+			}
+
+			// Recursively calculate the determinant
+			submatrixDet, err := submatrix.Det()
+			if err != nil {
+				return nil, err
+			}
+
+			if (i+j)%2 == 0 {
+				result[j][i] = submatrixDet / det
+			} else {
+				result[j][i] = -submatrixDet / det
+			}
+		}
+	}
+
 	return result, nil
 }
