@@ -1,9 +1,37 @@
 package numericalanalysis
 
+import "math"
+
 // matrix.go
 // Matrix operations
 
+func Norm(x []float64) float64 {
+	var sum float64
+	for _, v := range x {
+		sum += v * v
+	}
+	return math.Sqrt(sum)
+}
+
 type Matrix [][]float64
+
+func IdentityMatrix(n int) Matrix {
+	result := make(Matrix, n)
+	for i := range result {
+		result[i] = make([]float64, n)
+		result[i][i] = 1
+	}
+	return result
+}
+
+func Column(x []float64) Matrix {
+	result := make(Matrix, len(x))
+	for i := range result {
+		result[i] = make([]float64, 1)
+		result[i][0] = x[i]
+	}
+	return result
+}
 
 func (m Matrix) Equal(n Matrix) bool {
 	if len(m) != len(n) || len(m[0]) != len(n[0]) {
@@ -107,6 +135,17 @@ func (m Matrix) Mul(n Matrix) (Matrix, error) {
 	return result, nil
 }
 
+func (m Matrix) MulNumber(a float64) Matrix {
+	result := make(Matrix, len(m))
+	for i := range m {
+		result[i] = make([]float64, len(m[0]))
+		for j := range m[0] {
+			result[i][j] = m[i][j] * a
+		}
+	}
+	return result
+}
+
 func (m Matrix) Inverse() (Matrix, error) {
 	det, err := m.Det()
 	if err != nil {
@@ -114,6 +153,12 @@ func (m Matrix) Inverse() (Matrix, error) {
 	}
 	if det == 0 {
 		return nil, ErrSingularMatrix
+	}
+	if len(m) != len(m[0]) {
+		return nil, ErrWrongInput
+	}
+	if len(m) == 1 {
+		return Matrix{{1 / m[0][0]}}, nil
 	}
 
 	n := len(m)

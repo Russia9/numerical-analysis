@@ -14,7 +14,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 1e-6
 
-		_, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		_, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -28,7 +28,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 1e-6
 
-		_, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		_, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -43,7 +43,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 1e-6
 
-		_, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		_, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -57,7 +57,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 0.0
 
-		_, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		_, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -72,7 +72,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 1e-6
 
-		result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -93,7 +93,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 1e-6
 
-		result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -117,7 +117,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01, 0.01}
 		eps := 1e-6
 
-		result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -144,7 +144,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01, 0.01}
 		eps := 1e-6
 
-		result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -169,7 +169,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01}
 		eps := 1e-6
 
-		result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -191,7 +191,7 @@ func TestNewton(t *testing.T) {
 
 		// Test with looser tolerance
 		eps1 := 1e-3
-		result1, err := numericalanalysis.Newton(f, u0, deltaU, eps1)
+		result1, err := numericalanalysis.SENewton(f, u0, deltaU, eps1)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -201,7 +201,7 @@ func TestNewton(t *testing.T) {
 
 		// Test with tighter tolerance
 		eps2 := 1e-10
-		result2, err := numericalanalysis.Newton(f, u0, deltaU, eps2)
+		result2, err := numericalanalysis.SENewton(f, u0, deltaU, eps2)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -222,7 +222,7 @@ func TestNewton(t *testing.T) {
 		testCases := []float64{0.001, 0.01, 0.1}
 		for _, delta := range testCases {
 			deltaU := []float64{delta}
-			result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+			result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 			if err != nil {
 				t.Errorf("deltaU = %v: err = %v, want nil", delta, err)
 				continue
@@ -243,7 +243,7 @@ func TestNewton(t *testing.T) {
 		deltaU := []float64{0.01, 0.01}
 		eps := 1e-8
 
-		result, err := numericalanalysis.Newton(f, u0, deltaU, eps)
+		result, err := numericalanalysis.SENewton(f, u0, deltaU, eps)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -256,6 +256,394 @@ func TestNewton(t *testing.T) {
 		}
 		if math.Abs(residual2) > 1e-6 {
 			t.Errorf("residual2 = %v, want ~0", residual2)
+		}
+	})
+}
+
+func TestDampedNewtonExtremum(t *testing.T) {
+	t.Run("input validation - invalid C1 zero", func(t *testing.T) {
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{1.0}
+		deltaX := []float64{0.01}
+		alpha0 := 1.0
+		C1 := 0.0
+		eps := 1e-6
+
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput", err)
+		}
+	})
+
+	t.Run("input validation - invalid C1 negative", func(t *testing.T) {
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{1.0}
+		deltaX := []float64{0.01}
+		alpha0 := 100.0
+		C1 := -0.5
+		eps := 1e-6
+
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput", err)
+		}
+	})
+
+	t.Run("input validation - invalid C1 one", func(t *testing.T) {
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{1.0}
+		deltaX := []float64{0.01}
+		alpha0 := 100.0
+		C1 := 1.0
+		eps := 1e-6
+
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput", err)
+		}
+	})
+
+	t.Run("input validation - invalid C1 greater than one", func(t *testing.T) {
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{1.0}
+		deltaX := []float64{0.01}
+		alpha0 := 100.0
+		C1 := 1.5
+		eps := 1e-6
+
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput", err)
+		}
+	})
+
+	t.Run("input validation - non-positive tolerance", func(t *testing.T) {
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{1.0}
+		deltaX := []float64{0.01}
+		alpha0 := 1.0
+		C1 := 0.5
+		eps := 0.0
+
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput", err)
+		}
+	})
+
+	t.Run("single variable - quadratic minimum", func(t *testing.T) {
+		// f(x) = [(x - 3)^2], minimum at x = 3
+		f := func(x []float64) []float64 {
+			return []float64{(x[0] - 3) * (x[0] - 3)}
+		}
+		x0 := []float64{1.0}
+		deltaX := []float64{1e-4}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-6
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 1 {
+			t.Errorf("len(result) = %v, want 1", len(result))
+		}
+		if math.Abs(result[0]-3.0) > 1e-3 {
+			t.Errorf("result[0] = %v, want ~3.0", result[0])
+		}
+	})
+
+	t.Run("single variable - quadratic at origin", func(t *testing.T) {
+		// f(x) = x^2, minimum at x = 0
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{5.0}
+		deltaX := []float64{1e-4}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-6
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 1 {
+			t.Errorf("len(result) = %v, want 1", len(result))
+		}
+		if math.Abs(result[0]) > 1e-3 {
+			t.Errorf("result[0] = %v, want ~0.0", result[0])
+		}
+	})
+
+	t.Run("two variables - paraboloid minimum", func(t *testing.T) {
+		// f(x,y) = x^2 + y^2, minimum at (0, 0)
+		f := func(x []float64) []float64 {
+			return []float64{x[0]*x[0] + x[1]*x[1], x[0]*x[0] + x[1]*x[1]}
+		}
+		x0 := []float64{3.0, 4.0}
+		deltaX := []float64{1e-4, 1e-4}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-6
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 2 {
+			t.Errorf("len(result) = %v, want 2", len(result))
+		}
+		if math.Abs(result[0]) > 1e-3 {
+			t.Errorf("result[0] = %v, want ~0.0", result[0])
+		}
+		if math.Abs(result[1]) > 1e-3 {
+			t.Errorf("result[1] = %v, want ~0.0", result[1])
+		}
+	})
+
+	t.Run("two variables - shifted paraboloid", func(t *testing.T) {
+		// f(x,y) = [(x-1)^2 + (y-2)^2, (x-1)^2 + (y-2)^2], minimum at (1, 2)
+		f := func(x []float64) []float64 {
+			val := (x[0]-1)*(x[0]-1) + (x[1]-2)*(x[1]-2)
+			return []float64{val, val}
+		}
+		x0 := []float64{5.0, 5.0}
+		deltaX := []float64{1e-4, 1e-4}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-6
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 2 {
+			t.Errorf("len(result) = %v, want 2", len(result))
+		}
+		if math.Abs(result[0]-1.0) > 1e-3 {
+			t.Errorf("result[0] = %v, want ~1.0", result[0])
+		}
+		if math.Abs(result[1]-2.0) > 1e-3 {
+			t.Errorf("result[1] = %v, want ~2.0", result[1])
+		}
+	})
+
+	t.Run("two variables - rosenbrock function", func(t *testing.T) {
+		// f(x,y) = [(1-x)^2 + 100(y-x^2)^2, (1-x)^2 + 100(y-x^2)^2], minimum at (1, 1)
+		f := func(x []float64) []float64 {
+			val := (1-x[0])*(1-x[0]) + 100*(x[1]-x[0]*x[0])*(x[1]-x[0]*x[0])
+			return []float64{val, val}
+		}
+		x0 := []float64{0.0, 0.0}
+		deltaX := []float64{1e-4, 1e-4}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-4
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 2 {
+			t.Errorf("len(result) = %v, want 2", len(result))
+		}
+		if math.Abs(result[0]-1.0) > 0.1 {
+			t.Errorf("result[0] = %v, want ~1.0", result[0])
+		}
+		if math.Abs(result[1]-1.0) > 0.1 {
+			t.Errorf("result[1] = %v, want ~1.0", result[1])
+		}
+	})
+
+	t.Run("already at minimum", func(t *testing.T) {
+		// f(x) = x^2, start at minimum
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{0.0}
+		deltaX := []float64{1e-6}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-4
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 1 {
+			t.Errorf("len(result) = %v, want 1", len(result))
+		}
+		if math.Abs(result[0]) > 1e-5 {
+			t.Errorf("result[0] = %v, want ~0.0", result[0])
+		}
+	})
+
+	t.Run("different damping factors", func(t *testing.T) {
+		// f(x) = x^2, minimum at x = 0
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{5.0}
+		deltaX := []float64{1e-4}
+		C1 := 0.5
+		eps := 1e-6
+
+		testCases := []float64{1, 10.0, 100.0}
+		for _, alpha0 := range testCases {
+			result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+			if err != nil {
+				t.Errorf("alpha0 = %v: err = %v, want nil", alpha0, err)
+				continue
+			}
+			if math.Abs(result[0]) > 1e-3 {
+				t.Errorf("alpha0 = %v: result[0] = %v, want ~0.0", alpha0, result[0])
+			}
+		}
+	})
+
+	t.Run("different C1 values", func(t *testing.T) {
+		// f(x) = x^2, minimum at x = 0
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{3.0}
+		deltaX := []float64{1e-4}
+		alpha0 := 1.0
+		eps := 1e-6
+
+		testCases := []float64{0.1, 0.3, 0.5, 0.7, 0.9}
+		for _, C1 := range testCases {
+			result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+			if err != nil {
+				t.Errorf("C1 = %v: err = %v, want nil", C1, err)
+				continue
+			}
+			if math.Abs(result[0]) > 1e-3 {
+				t.Errorf("C1 = %v: result[0] = %v, want ~0.0", C1, result[0])
+			}
+		}
+	})
+
+	t.Run("different tolerance values", func(t *testing.T) {
+		// f(x) = x^2, minimum at x = 0
+		f := func(x []float64) []float64 {
+			return []float64{x[0] * x[0]}
+		}
+		x0 := []float64{3.0}
+		deltaX := []float64{1e-5}
+		alpha0 := 100.0
+		C1 := 0.5
+
+		// Test with looser tolerance
+		eps1 := 1e-3
+		result1, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps1)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if math.Abs(result1[0]) > 1e-2 {
+			t.Errorf("result1[0] = %v, want ~0.0", result1[0])
+		}
+
+		// Test with tighter tolerance
+		eps2 := 1e-8
+		result2, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps2)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if math.Abs(result2[0]) > 1e-5 {
+			t.Errorf("result2[0] = %v, want ~0.0", result2[0])
+		}
+	})
+
+	t.Run("three variables - sphere", func(t *testing.T) {
+		// f(x,y,z) = [x^2 + y^2 + z^2, x^2 + y^2 + z^2, x^2 + y^2 + z^2], minimum at (0, 0, 0)
+		f := func(x []float64) []float64 {
+			val := x[0]*x[0] + x[1]*x[1] + x[2]*x[2]
+			return []float64{val, val, val}
+		}
+		x0 := []float64{2.0, 3.0, 4.0}
+		deltaX := []float64{1e-3, 1e-3, 1e-3}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-6
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 3 {
+			t.Errorf("len(result) = %v, want 3", len(result))
+		}
+		if math.Abs(result[0]) > 1e-3 {
+			t.Errorf("result[0] = %v, want ~0.0", result[0])
+		}
+		if math.Abs(result[1]) > 1e-3 {
+			t.Errorf("result[1] = %v, want ~0.0", result[1])
+		}
+		if math.Abs(result[2]) > 1e-3 {
+			t.Errorf("result[2] = %v, want ~0.0", result[2])
+		}
+	})
+
+	t.Run("verify minimum accuracy", func(t *testing.T) {
+		// f(x,y) = [x^2 + y^2, x^2 + y^2], minimum at (0, 0)
+		f := func(x []float64) []float64 {
+			return []float64{x[0]*x[0] + x[1]*x[1], x[0]*x[0] + x[1]*x[1]}
+		}
+		x0 := []float64{5.0, 5.0}
+		deltaX := []float64{0.0001, 0.0001}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-8
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+
+		// Verify function value is close to minimum
+		fval := f(result)[0]
+		if math.Abs(fval) > 1e-4 {
+			t.Errorf("f(result) = %v, want ~0.0", fval)
+		}
+	})
+
+	t.Run("two variables - different extrema per dimension", func(t *testing.T) {
+		// f(x,y) = [(x-2)^2, (y+3)^2], minimum at x=2, y=-3
+		f := func(x []float64) []float64 {
+			return []float64{(x[0] - 2) * (x[0] - 2), (x[1] + 3) * (x[1] + 3)}
+		}
+		x0 := []float64{10.0, 10.0}
+		deltaX := []float64{0.0001, 0.0001}
+		alpha0 := 100.0
+		C1 := 0.5
+		eps := 1e-8
+
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		if err != nil {
+			t.Errorf("err = %v, want nil", err)
+		}
+		if len(result) != 2 {
+			t.Errorf("len(result) = %v, want 2", len(result))
+		}
+		tol := 0.01
+		if math.Abs(result[0]-2.0) > tol {
+			t.Errorf("result[0] = %v, want ~2.0", result[0])
+		}
+		if math.Abs(result[1]+3.0) > tol {
+			t.Errorf("result[1] = %v, want ~-3.0", result[1])
 		}
 	})
 }
