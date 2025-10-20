@@ -262,8 +262,8 @@ func TestNewton(t *testing.T) {
 
 func TestDampedNewtonExtremum(t *testing.T) {
 	t.Run("input validation - invalid C1 zero", func(t *testing.T) {
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{1.0}
 		deltaX := []float64{0.01}
@@ -278,8 +278,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 	})
 
 	t.Run("input validation - invalid C1 negative", func(t *testing.T) {
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{1.0}
 		deltaX := []float64{0.01}
@@ -294,8 +294,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 	})
 
 	t.Run("input validation - invalid C1 one", func(t *testing.T) {
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{1.0}
 		deltaX := []float64{0.01}
@@ -310,8 +310,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 	})
 
 	t.Run("input validation - invalid C1 greater than one", func(t *testing.T) {
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{1.0}
 		deltaX := []float64{0.01}
@@ -326,8 +326,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 	})
 
 	t.Run("input validation - non-positive tolerance", func(t *testing.T) {
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{1.0}
 		deltaX := []float64{0.01}
@@ -343,8 +343,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("single variable - quadratic minimum", func(t *testing.T) {
 		// f(x) = [(x - 3)^2], minimum at x = 3
-		f := func(x []float64) []float64 {
-			return []float64{(x[0] - 3) * (x[0] - 3)}
+		f := func(x []float64) float64 {
+			return (x[0] - 3) * (x[0] - 3)
 		}
 		x0 := []float64{1.0}
 		deltaX := []float64{1e-4}
@@ -366,8 +366,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("single variable - quadratic at origin", func(t *testing.T) {
 		// f(x) = x^2, minimum at x = 0
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{5.0}
 		deltaX := []float64{1e-4}
@@ -389,8 +389,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("two variables - paraboloid minimum", func(t *testing.T) {
 		// f(x,y) = x^2 + y^2, minimum at (0, 0)
-		f := func(x []float64) []float64 {
-			return []float64{x[0]*x[0] + x[1]*x[1], x[0]*x[0] + x[1]*x[1]}
+		f := func(x []float64) float64 {
+			return x[0]*x[0] + x[1]*x[1]
 		}
 		x0 := []float64{3.0, 4.0}
 		deltaX := []float64{1e-4, 1e-4}
@@ -415,9 +415,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("two variables - shifted paraboloid", func(t *testing.T) {
 		// f(x,y) = [(x-1)^2 + (y-2)^2, (x-1)^2 + (y-2)^2], minimum at (1, 2)
-		f := func(x []float64) []float64 {
-			val := (x[0]-1)*(x[0]-1) + (x[1]-2)*(x[1]-2)
-			return []float64{val, val}
+		f := func(x []float64) float64 {
+			return (x[0]-1)*(x[0]-1) + (x[1]-2)*(x[1]-2)
 		}
 		x0 := []float64{5.0, 5.0}
 		deltaX := []float64{1e-4, 1e-4}
@@ -442,9 +441,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("two variables - rosenbrock function", func(t *testing.T) {
 		// f(x,y) = [(1-x)^2 + 100(y-x^2)^2, (1-x)^2 + 100(y-x^2)^2], minimum at (1, 1)
-		f := func(x []float64) []float64 {
-			val := (1-x[0])*(1-x[0]) + 100*(x[1]-x[0]*x[0])*(x[1]-x[0]*x[0])
-			return []float64{val, val}
+		f := func(x []float64) float64 {
+			return (1-x[0])*(1-x[0]) + 100*(x[1]-x[0]*x[0])*(x[1]-x[0]*x[0])
 		}
 		x0 := []float64{0.0, 0.0}
 		deltaX := []float64{1e-4, 1e-4}
@@ -469,8 +467,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("already at minimum", func(t *testing.T) {
 		// f(x) = x^2, start at minimum
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{0.0}
 		deltaX := []float64{1e-6}
@@ -492,8 +490,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("different damping factors", func(t *testing.T) {
 		// f(x) = x^2, minimum at x = 0
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{5.0}
 		deltaX := []float64{1e-4}
@@ -515,8 +513,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("different C1 values", func(t *testing.T) {
 		// f(x) = x^2, minimum at x = 0
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{3.0}
 		deltaX := []float64{1e-4}
@@ -538,8 +536,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("different tolerance values", func(t *testing.T) {
 		// f(x) = x^2, minimum at x = 0
-		f := func(x []float64) []float64 {
-			return []float64{x[0] * x[0]}
+		f := func(x []float64) float64 {
+			return x[0] * x[0]
 		}
 		x0 := []float64{3.0}
 		deltaX := []float64{1e-5}
@@ -569,9 +567,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("three variables - sphere", func(t *testing.T) {
 		// f(x,y,z) = [x^2 + y^2 + z^2, x^2 + y^2 + z^2, x^2 + y^2 + z^2], minimum at (0, 0, 0)
-		f := func(x []float64) []float64 {
-			val := x[0]*x[0] + x[1]*x[1] + x[2]*x[2]
-			return []float64{val, val, val}
+		f := func(x []float64) float64 {
+			return x[0]*x[0] + x[1]*x[1] + x[2]*x[2]
 		}
 		x0 := []float64{2.0, 3.0, 4.0}
 		deltaX := []float64{1e-3, 1e-3, 1e-3}
@@ -599,8 +596,8 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 	t.Run("verify minimum accuracy", func(t *testing.T) {
 		// f(x,y) = [x^2 + y^2, x^2 + y^2], minimum at (0, 0)
-		f := func(x []float64) []float64 {
-			return []float64{x[0]*x[0] + x[1]*x[1], x[0]*x[0] + x[1]*x[1]}
+		f := func(x []float64) float64 {
+			return x[0]*x[0] + x[1]*x[1]
 		}
 		x0 := []float64{5.0, 5.0}
 		deltaX := []float64{0.0001, 0.0001}
@@ -614,36 +611,9 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		}
 
 		// Verify function value is close to minimum
-		fval := f(result)[0]
+		fval := f(result)
 		if math.Abs(fval) > 1e-4 {
 			t.Errorf("f(result) = %v, want ~0.0", fval)
-		}
-	})
-
-	t.Run("two variables - different extrema per dimension", func(t *testing.T) {
-		// f(x,y) = [(x-2)^2, (y+3)^2], minimum at x=2, y=-3
-		f := func(x []float64) []float64 {
-			return []float64{(x[0] - 2) * (x[0] - 2), (x[1] + 3) * (x[1] + 3)}
-		}
-		x0 := []float64{10.0, 10.0}
-		deltaX := []float64{0.0001, 0.0001}
-		alpha0 := 100.0
-		C1 := 0.5
-		eps := 1e-8
-
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
-		if err != nil {
-			t.Errorf("err = %v, want nil", err)
-		}
-		if len(result) != 2 {
-			t.Errorf("len(result) = %v, want 2", len(result))
-		}
-		tol := 0.01
-		if math.Abs(result[0]-2.0) > tol {
-			t.Errorf("result[0] = %v, want ~2.0", result[0])
-		}
-		if math.Abs(result[1]+3.0) > tol {
-			t.Errorf("result[1] = %v, want ~-3.0", result[1])
 		}
 	})
 }

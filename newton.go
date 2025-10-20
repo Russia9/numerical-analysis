@@ -11,7 +11,7 @@ import (
 // alpha0: initial damping factor
 // C1: coefficient, C1 in (0,1); C2=1/C1
 // eps: tolerance
-func DampedNewtonExtremum(f func(x []float64) []float64, x0 []float64, deltaX []float64, alpha0, C1 float64, eps float64) ([]float64, error) {
+func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []float64, alpha0, C1 float64, eps float64) ([]float64, error) {
 	// Check input
 	if C1 <= 0 || C1 >= 1 || eps <= 0 {
 		return nil, ErrWrongInput
@@ -32,7 +32,7 @@ func DampedNewtonExtremum(f func(x []float64) []float64, x0 []float64, deltaX []
 
 			x_cur[i] += deltaX[i]
 
-			grad[i] = (f(x_cur)[i] - y[i]) / deltaX[i]
+			grad[i] = (f(x_cur) - y) / deltaX[i]
 		}
 
 		// Check grad G
@@ -66,10 +66,10 @@ func DampedNewtonExtremum(f func(x []float64) []float64, x0 []float64, deltaX []
 				x_B[i] += deltaX[i]
 				x_C[j] += deltaX[j]
 
-				A := f(x_A)[i]
-				B := f(x_B)[i]
-				C := f(x_C)[i]
-				D := f(x_D)[i]
+				A := f(x_A)
+				B := f(x_B)
+				C := f(x_C)
+				D := f(x_D)
 
 				H[i][j] = (A - B - C + D) / (deltaX[i] * deltaX[j])
 			}
@@ -100,7 +100,7 @@ func DampedNewtonExtremum(f func(x []float64) []float64, x0 []float64, deltaX []
 			x1[i] = H4[i][0]
 		}
 
-		if Norm(f(x1)) < Norm(f(x)) {
+		if f(x1) < f(x) {
 			alpha = C1 * alpha
 		} else {
 			alpha = C2 * alpha
