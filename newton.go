@@ -38,9 +38,8 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 	x := x0
 	alpha := alpha0
 
+	fx := f(x)
 	for {
-		fx := f(x)
-
 		// Calculate gradient
 		grad := make([]float64, len(x))
 		for i := range x {
@@ -83,38 +82,42 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 			}
 		}
 
-		// X(i+1) = X(i) - (H(i)+alpha(i)I)^(-1)*grad(X(i))
-		H1, err := H.Add(IdentityMatrix(len(x)).MulNumber(alpha))
-		if err != nil {
-			return nil, err
-		}
-		H2, err := H1.Inverse()
-		if err != nil {
-			return nil, err
-		}
-		H3, err := H2.Mul(Column(grad))
-		if err != nil {
-			return nil, err
-		}
-		H3 = H3.MulNumber(-1)
-		H4, err := Column(x).Add(H3)
-		if err != nil {
-			return nil, err
-		}
+		for range 10 { // Backtracking
+			// X(i+1) = X - (H + αI)^(-1) * ∇f(x)
+			H1, err := H.Add(IdentityMatrix(len(x)).MulNumber(alpha))
+			if err != nil {
+				return nil, err
+			}
+			H2, err := H1.Inverse()
+			if err != nil {
+				return nil, err
+			}
+			H3, err := H2.Mul(Column(grad))
+			if err != nil {
+				return nil, err
+			}
+			H3 = H3.MulNumber(-1)
+			H4, err := Column(x).Add(H3)
+			if err != nil {
+				return nil, err
+			}
 
-		// Convert back to float slice
-		x1 := make([]float64, len(x))
-		for i := range x {
-			x1[i] = H4[i][0]
-		}
+			// Convert back to float slice
+			x1 := make([]float64, len(x))
+			for i := range x {
+				x1[i] = H4[i][0]
+			}
 
-		if f(x1) < f(x) {
-			alpha = C1 * alpha
-		} else {
-			alpha = C2 * alpha
+			fx1 := f(x1)
+			if f(x1) < fx {
+				fx = fx1
+				x = x1
+				alpha = C1 * alpha
+				break
+			} else {
+				alpha = C2 * alpha
+			}
 		}
-
-		x = x1
 	}
 
 	return x, nil
