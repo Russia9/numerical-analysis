@@ -11,7 +11,8 @@ import (
 // alpha0: initial damping factor
 // C1: coefficient, C1 in (0,1); C2=1/C1
 // eps: tolerance
-func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []float64, alpha0, C1 float64, eps float64) ([]float64, error) {
+// maxBacktrack: maximum number of backtracking steps
+func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []float64, alpha0, C1 float64, eps float64, maxBacktrack int) ([]float64, error) {
 	n := len(x0)
 
 	// Check input
@@ -82,15 +83,19 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 			}
 		}
 
-		for range 10 { // Backtracking
+		accepted := false
+		alphaTry := alpha
+
+		for bt := 0; bt < maxBacktrack && !accepted; bt++ { // Backtracking
 			// X(i+1) = X - (H + αI)^(-1) * ∇f(x)
-			H1, err := H.Add(IdentityMatrix(len(x)).MulNumber(alpha))
+			H1, err := H.Add(IdentityMatrix(len(x)).MulNumber(alphaTry))
 			if err != nil {
 				return nil, err
 			}
 			H2, err := H1.Inverse()
 			if err != nil {
-				return nil, err
+				alphaTry = C2 * alphaTry
+				continue
 			}
 			H3, err := H2.Mul(Column(grad))
 			if err != nil {
@@ -112,11 +117,16 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 			if f(x1) < fx {
 				fx = fx1
 				x = x1
-				alpha = C1 * alpha
+				alpha = C1 * alphaTry
+				accepted = true
 				break
 			} else {
-				alpha = C2 * alpha
+				alphaTry = C2 * alphaTry
 			}
+		}
+
+		if !accepted {
+			return nil, ErrDidNotConverge
 		}
 	}
 

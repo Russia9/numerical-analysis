@@ -563,7 +563,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.0
 		eps := 1e-6
 
-		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -579,7 +579,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := -0.5
 		eps := 1e-6
 
-		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -595,7 +595,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 1.0
 		eps := 1e-6
 
-		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -611,7 +611,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 1.5
 		eps := 1e-6
 
-		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -627,7 +627,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 0.0
 
-		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		_, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != numericalanalysis.ErrWrongInput {
 			t.Errorf("err = %v, want ErrWrongInput", err)
 		}
@@ -644,7 +644,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -667,7 +667,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -690,7 +690,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -716,7 +716,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -742,7 +742,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-4
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -768,7 +768,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-4
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -792,7 +792,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 		testCases := []float64{1, 10.0, 100.0}
 		for _, alpha0 := range testCases {
-			result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+			result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 			if err != nil {
 				t.Errorf("alpha0 = %v: err = %v, want nil", alpha0, err)
 				continue
@@ -815,7 +815,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 		testCases := []float64{0.1, 0.3, 0.5, 0.7, 0.9}
 		for _, C1 := range testCases {
-			result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+			result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 			if err != nil {
 				t.Errorf("C1 = %v: err = %v, want nil", C1, err)
 				continue
@@ -838,7 +838,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 		// Test with looser tolerance
 		eps1 := 1e-3
-		result1, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps1)
+		result1, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps1, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -848,7 +848,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 
 		// Test with tighter tolerance
 		eps2 := 1e-8
-		result2, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps2)
+		result2, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps2, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -868,7 +868,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -897,7 +897,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-8
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -920,7 +920,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -944,7 +944,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-5
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -967,7 +967,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -990,7 +990,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -1010,7 +1010,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -1034,7 +1034,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -1057,7 +1057,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -1080,7 +1080,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -1102,7 +1102,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
@@ -1125,7 +1125,7 @@ func TestDampedNewtonExtremum(t *testing.T) {
 		C1 := 0.5
 		eps := 1e-6
 
-		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps)
+		result, err := numericalanalysis.DampedNewtonExtremum(f, x0, deltaX, alpha0, C1, eps, 10)
 		if err != nil {
 			t.Errorf("err = %v, want nil", err)
 		}
