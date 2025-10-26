@@ -114,7 +114,7 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 			}
 
 			fx1 := f(x1)
-			if f(x1) < fx {
+			if fx1 < fx {
 				fx = fx1
 				x = x1
 				alpha = C1 * alphaTry
