@@ -12,9 +12,26 @@ import (
 // C1: coefficient, C1 in (0,1); C2=1/C1
 // eps: tolerance
 func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []float64, alpha0, C1 float64, eps float64) ([]float64, error) {
+	n := len(x0)
+
 	// Check input
-	if C1 <= 0 || C1 >= 1 || eps <= 0 {
+	if n == 0 || len(deltaX) != n || C1 <= 0 || C1 >= 1 || eps <= 0 || alpha0 <= 0 {
 		return nil, ErrWrongInput
+	}
+	for i := range deltaX {
+		if deltaX[i] <= 0 {
+			return nil, ErrWrongInput
+		}
+	}
+
+	// helper to evaluate at x + s
+	at := func(base []float64, shift map[int]float64) []float64 {
+		y := make([]float64, n)
+		copy(y, base)
+		for i, v := range shift {
+			y[i] += v
+		}
+		return y
 	}
 
 	C2 := 1 / C1
@@ -22,17 +39,17 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 	alpha := alpha0
 
 	for {
-		y := f(x)
+		fx := f(x)
 
 		// Calculate gradient
 		grad := make([]float64, len(x))
 		for i := range x {
-			x_cur := make([]float64, len(x))
-			copy(x_cur, x)
+			h := deltaX[i]
 
-			x_cur[i] += deltaX[i]
+			fp := f(at(x, map[int]float64{i: +h}))
+			fn := f(at(x, map[int]float64{i: -h}))
 
-			grad[i] = (f(x_cur) - y) / deltaX[i]
+			grad[i] = (fp - fn) / (2 * h)
 		}
 
 		// Check grad G
@@ -41,37 +58,28 @@ func DampedNewtonExtremum(f func(x []float64) float64, x0 []float64, deltaX []fl
 		}
 
 		// Calculate Hessian matrix
-		H := make(Matrix, len(x))
-		for i := range x {
-			H[i] = make([]float64, len(x))
+		H := make(Matrix, n)
+		for i := range n {
+			H[i] = make([]float64, n)
+		}
+		for i := range n {
+			hi := deltaX[i]
 
-			for j := range x {
-				// A = g(..., x_i + Delta x_i, ..., x_j + Delta x_j, ...)
-				// B = g(..., x_i + Delta x_i, ..., x_j
-				// C = g(..., x_i, ..., x_j + Delta x_j, ...)
-				// D = g(..., x_i, ..., x_j, ...)
-				// H[i,j] = (A-B-C+D)/(Delta x_i * Delta x_j)
-				x_A := make([]float64, len(x))
-				x_B := make([]float64, len(x))
-				x_C := make([]float64, len(x))
-				x_D := make([]float64, len(x))
+			// diagonal
+			fip := f(at(x, map[int]float64{i: +hi}))
+			fim := f(at(x, map[int]float64{i: -hi}))
+			H[i][i] = (fip - 2*fx + fim) / (hi * hi)
 
-				copy(x_A, x)
-				copy(x_B, x)
-				copy(x_C, x)
-				copy(x_D, x)
-
-				x_A[i] += deltaX[i]
-				x_A[j] += deltaX[j]
-				x_B[i] += deltaX[i]
-				x_C[j] += deltaX[j]
-
-				A := f(x_A)
-				B := f(x_B)
-				C := f(x_C)
-				D := f(x_D)
-
-				H[i][j] = (A - B - C + D) / (deltaX[i] * deltaX[j])
+			// off-diagonals
+			for j := i + 1; j < n; j++ {
+				hj := deltaX[j]
+				fpp := f(at(x, map[int]float64{i: +hi, j: +hj}))
+				fpm := f(at(x, map[int]float64{i: +hi, j: -hj}))
+				fmp := f(at(x, map[int]float64{i: -hi, j: +hj}))
+				fmm := f(at(x, map[int]float64{i: -hi, j: -hj}))
+				val := (fpp - fpm - fmp + fmm) / (4 * hi * hj)
+				H[i][j] = val
+				H[j][i] = val
 			}
 		}
 
