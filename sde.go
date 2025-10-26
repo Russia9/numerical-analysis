@@ -1,6 +1,8 @@
 package numericalanalysis
 
-import "math"
+import (
+	"math"
+)
 
 // sde.go
 // Systems of differential equations solvers
@@ -13,7 +15,7 @@ func EulerMethod(
 	start []float64, // [y1(x0), y2(x0), ...]
 	xChar []float64, // [x1, x2, ...] - Points are always included, regardless of the hBase. The step size is adjusted to ensure that.
 	hBase float64,
-	stop func(x float64, y ...float64) bool,
+	stop func(x float64, y ...float64) (half bool, stop bool), // half - the step should be halved, stop - hard stop.
 ) ([][]Point2D, error) {
 	// Check input dimensions
 	if len(f) != len(start) {
@@ -29,11 +31,6 @@ func EulerMethod(
 
 	// Iterate
 	for {
-		// Check if the last point satisfies the stop condition
-		if stop(x[i-1], result[i-1]...) {
-			break
-		}
-
 		// Initialize new point
 		result = append(result, make([]float64, len(f)))
 		h := hBase
@@ -57,7 +54,21 @@ func EulerMethod(
 			result[i][j] = result[i-1][j] + h*f[j](fromRight, x[i-1], result[i-1]...)
 		}
 
-		i++
+		// Check stop and half contidions
+		half, st := stop(x[i], result[i]...)
+		if st {
+			break
+		}
+		if half {
+			// Remove current point
+			x = append(x[:i], x[i+1:]...)
+			result = append(result[:i], result[i+1:]...)
+
+			// Half the step
+			hBase /= 2
+		} else {
+			i++
+		}
 	}
 
 	// Convert to Point2D
@@ -78,7 +89,7 @@ func ModifiedEulerMethod(
 	start []float64, // [y1(x0), y2(x0), ...]
 	xChar []float64, // [x1, x2, ...] - Points are always included, regardless of the hBase. The step size is adjusted to ensure that.
 	hBase float64,
-	stop func(x float64, y ...float64) bool,
+	stop func(x float64, y ...float64) (half bool, stop bool), // half - the step should be halved, stop - hard stop.
 ) ([][]Point2D, error) {
 	// Check input dimensions
 	if len(f) != len(start) {
@@ -94,11 +105,6 @@ func ModifiedEulerMethod(
 
 	// Iterate
 	for {
-		// Check if the last point satisfies the stop condition
-		if stop(x[i-1], result[i-1]...) {
-			break
-		}
-
 		// Initialize new point
 		result = append(result, make([]float64, len(f)))
 		h := hBase
@@ -140,7 +146,21 @@ func ModifiedEulerMethod(
 			result[i][j] = result[i-1][j] + h*(k1[j]+k2[j])/2
 		}
 
-		i++
+		// Check stop and half contidions
+		half, st := stop(x[i], result[i]...)
+		if st {
+			break
+		}
+		if half {
+			// Remove current point
+			x = append(x[:i], x[i+1:]...)
+			result = append(result[:i], result[i+1:]...)
+
+			// Half the step
+			hBase /= 2
+		} else {
+			i++
+		}
 	}
 
 	// Convert to Point2D
@@ -161,7 +181,7 @@ func RungeKuttaMethod(
 	start []float64, // [y1(x0), y2(x0), ...]
 	xChar []float64, // [x1, x2, ...] - Points are always included, regardless of the hBase. The step size is adjusted to ensure that.
 	hBase float64,
-	stop func(x float64, y ...float64) bool,
+	stop func(x float64, y ...float64) (half bool, stop bool), // half - the step should be halved, stop - hard stop.
 ) ([][]Point2D, error) {
 	// Check input dimensions
 	if len(f) != len(start) {
@@ -177,11 +197,6 @@ func RungeKuttaMethod(
 
 	// Iterate
 	for {
-		// Check if the last point satisfies the stop condition
-		if stop(x[i-1], result[i-1]...) {
-			break
-		}
-
 		// Initialize new point
 		result = append(result, make([]float64, len(f)))
 		h := hBase
@@ -247,7 +262,21 @@ func RungeKuttaMethod(
 			result[i][j] = result[i-1][j] + (k1[j]+2*k2[j]+2*k3[j]+k4[j])/6
 		}
 
-		i++
+		// Check stop and half contidions
+		half, st := stop(x[i], result[i]...)
+		if st {
+			break
+		}
+		if half {
+			// Remove current point
+			x = append(x[:i], x[i+1:]...)
+			result = append(result[:i], result[i+1:]...)
+
+			// Half the step
+			hBase /= 2
+		} else {
+			i++
+		}
 	}
 
 	// Convert to Point2D
