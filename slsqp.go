@@ -65,10 +65,6 @@ func SLSQP(
 	// BFGS approximation of the Lagrangian Hessian; start from identity
 	B := IdentityMatrix(n)
 
-	// Gradient of the Lagrangian at previous iterate (for BFGS update)
-	var prevGradLag []float64
-	var prevX []float64
-
 	lagGrad := func(xk []float64, lambdaEq []float64, muIneq []float64) []float64 {
 		g := gradient(f, xk, deltaX)
 		for i, eq := range eqConstraints {
@@ -199,17 +195,16 @@ func SLSQP(
 		s := scaleVec(alpha, d)
 		xNew := addVec(x, s)
 
-		// BFGS update on Lagrangian gradient
-		gl := lagGrad(xNew, lambdaEq, muIneq)
-		if prevGradLag != nil {
-			_ = prevX // prevX reserved for future use
-			y := subVec(gl, prevGradLag)
-			if Bnew, err := BFGSUpdate(B, s, y); err == nil {
-				B = Bnew
-			}
+		// BFGS update: y = ∇L(x_new, λ) − ∇L(x_old, λ) using the same
+		// multipliers for both points so that y ≈ ∇²L·s (proper secant condition).
+		// Using different multipliers contaminates y with (λ_new−λ_old)·∇g and
+		// causes ||y|| to explode, corrupting B.
+		glNew := lagGrad(xNew, lambdaEq, muIneq)
+		glOld := lagGrad(x, lambdaEq, muIneq)
+		y := subVec(glNew, glOld)
+		if Bnew, err := BFGSUpdate(B, s, y); err == nil {
+			B = Bnew
 		}
-		prevGradLag = gl
-		prevX = x
 
 		x = xNew
 	}

@@ -115,6 +115,72 @@ func TestSLSQP(t *testing.T) {
 		}
 	})
 
+	t.Run("rocket staging — 3-stage payload maximisation", func(t *testing.T) {
+		// Variant-22 constants (from real application).
+		// Minimise f = ∏ (1-αᵢ)/(μᵢ-αᵢ)  s.t.  V_ch + ΣWᵢ·ln(μᵢ) = 0
+		// and αᵢ < μᵢ < 1 (mass-ratio domain bounds).
+		// This is a regression test for the BFGS y-vector bug: previously
+		// y was computed as ∇L(x_new,λ_new) − ∇L(x_old,λ_old), mixing two
+		// different multipliers; the cross-term (λ_new−λ_old)·∇g caused ‖y‖
+		// to explode (up to 10¹⁵), corrupting B and producing a singular KKT.
+		const vCh = 12.084
+		W := []float64{3.0550, 3.1771, 3.3894}
+		alpha := []float64{0.0990, 0.0934, 0.0979}
+		n := 3
+
+		f := func(x []float64) float64 {
+			prod := 1.0
+			for i := range n {
+				prod *= (1 - alpha[i]) / (x[i] - alpha[i])
+			}
+			return prod
+		}
+		eq := func(x []float64) float64 {
+			sum := vCh
+			for i := range n {
+				sum += W[i] * math.Log(x[i])
+			}
+			return sum
+		}
+		bounds := make([]func([]float64) float64, 2*n)
+		for i := range n {
+			i := i
+			bounds[i] = func(x []float64) float64 { return x[i] - alpha[i] }
+			bounds[n+i] = func(x []float64) float64 { return 1 - x[i] }
+		}
+
+		// Initial guess: equal delta-v split across stages.
+		x0 := make([]float64, n)
+		for i := range n {
+			x0[i] = math.Exp(-vCh / (float64(n) * W[i]))
+		}
+
+		dxRocket := []float64{1e-5, 1e-5, 1e-5}
+		result, err := numericalanalysis.SLSQP(f, x0, dxRocket,
+			[]func([]float64) float64{eq}, bounds, 1e-6, 500)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		// Equality constraint satisfied.
+		if math.Abs(eq(result)) > 1e-4 {
+			t.Errorf("equality constraint violated: g=%v", eq(result))
+		}
+		// All mass ratios inside (αᵢ, 1).
+		for i := range n {
+			if result[i] <= alpha[i] {
+				t.Errorf("result[%d]=%v <= alpha[%d]=%v", i, result[i], i, alpha[i])
+			}
+			if result[i] >= 1 {
+				t.Errorf("result[%d]=%v >= 1", i, result[i])
+			}
+		}
+		// Objective must not increase from the initial feasible point
+		// (first-order optimality: we at least found a descent).
+		if f(result) >= f(x0) {
+			t.Errorf("objective did not decrease: f(result)=%v, f(x0)=%v", f(result), f(x0))
+		}
+	})
+
 	t.Run("Rosenbrock unconstrained", func(t *testing.T) {
 		// min (1-x)² + 100(y-x²)²  →  solution (1, 1)
 		f := func(x []float64) float64 {
