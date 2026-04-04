@@ -146,6 +146,59 @@ func (m Matrix) MulNumber(a float64) Matrix {
 	return result
 }
 
+// --- unexported vector helpers ---
+
+func dot(a, b []float64) float64 {
+	var s float64
+	for i := range a {
+		s += a[i] * b[i]
+	}
+	return s
+}
+
+func addVec(a, b []float64) []float64 {
+	r := make([]float64, len(a))
+	for i := range a {
+		r[i] = a[i] + b[i]
+	}
+	return r
+}
+
+func subVec(a, b []float64) []float64 {
+	r := make([]float64, len(a))
+	for i := range a {
+		r[i] = a[i] - b[i]
+	}
+	return r
+}
+
+func scaleVec(s float64, v []float64) []float64 {
+	r := make([]float64, len(v))
+	for i := range v {
+		r[i] = s * v[i]
+	}
+	return r
+}
+
+func outerVec(a, b []float64) Matrix {
+	m := make(Matrix, len(a))
+	for i := range a {
+		m[i] = make([]float64, len(b))
+		for j := range b {
+			m[i][j] = a[i] * b[j]
+		}
+	}
+	return m
+}
+
+func matvec(A Matrix, v []float64) []float64 {
+	r := make([]float64, len(A))
+	for i := range A {
+		r[i] = dot(A[i], v)
+	}
+	return r
+}
+
 func (m Matrix) Inverse() (Matrix, error) {
 	det, err := m.Det()
 	if err != nil {

@@ -4,6 +4,51 @@ import (
 	"math"
 )
 
+// BFGSUpdate returns an updated symmetric positive-definite Hessian approximation B
+// given step s = x_new - x_old and gradient difference y = ∇f(x_new) - ∇f(x_old).
+// Powell damping is applied when yᵀs is too small to guarantee positive definiteness.
+func BFGSUpdate(B Matrix, s, y []float64) (Matrix, error) {
+	n := len(s)
+	if len(B) != n || len(y) != n {
+		return nil, ErrWrongInput
+	}
+
+	Bs := matvec(B, s)
+	sBs := dot(s, Bs)
+	ys := dot(y, s)
+
+	if sBs <= 0 {
+		return nil, ErrWrongInput
+	}
+
+	// Powell damping: ensure yᵀs >= 0.2 sᵀBs
+	var yDamped []float64
+	if ys >= 0.2*sBs {
+		yDamped = y
+	} else {
+		theta := 0.8 * sBs / (sBs - ys)
+		yDamped = make([]float64, n)
+		for i := range n {
+			yDamped[i] = theta*y[i] + (1-theta)*Bs[i]
+		}
+	}
+
+	ys2 := dot(yDamped, s)
+
+	// B_{k+1} = B - (Bs sᵀ B) / (sᵀ Bs) + (ỹ ỹᵀ) / (ỹᵀ s)
+	outer_Bs := outerVec(Bs, Bs)
+	outer_y := outerVec(yDamped, yDamped)
+
+	result := make(Matrix, n)
+	for i := range n {
+		result[i] = make([]float64, n)
+		for j := range n {
+			result[i][j] = B[i][j] - outer_Bs[i][j]/sBs + outer_y[i][j]/ys2
+		}
+	}
+	return result, nil
+}
+
 // DampedNewtonExtremum method for finding an extremum of a function of many variables
 // f: function to minimize
 // x0: initial guess for the solution

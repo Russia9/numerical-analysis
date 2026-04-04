@@ -1136,4 +1136,94 @@ func TestDampedNewtonExtremum(t *testing.T) {
 			t.Errorf("result[1] = %v, want ~-3.0", result[1])
 		}
 	})
+
+	t.Run("input validation - empty x0", func(t *testing.T) {
+		f := func(x []float64) float64 { return x[0] * x[0] }
+		_, err := numericalanalysis.DampedNewtonExtremum(f, []float64{}, []float64{}, 1.0, 0.5, 1e-6, 10)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput (empty x0)", err)
+		}
+	})
+
+	t.Run("input validation - negative deltaX", func(t *testing.T) {
+		f := func(x []float64) float64 { return x[0] * x[0] }
+		_, err := numericalanalysis.DampedNewtonExtremum(f, []float64{1.0}, []float64{-0.01}, 1.0, 0.5, 1e-6, 10)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput (negative deltaX)", err)
+		}
+	})
+
+	t.Run("ErrDidNotConverge - maxBacktrack=1 on non-quadratic", func(t *testing.T) {
+		// Absolute value has no smooth minimum; with only 1 backtrack step it cannot converge
+		f := func(x []float64) float64 { return math.Abs(x[0]) + math.Abs(x[1]) }
+		_, err := numericalanalysis.DampedNewtonExtremum(f, []float64{5.0, 5.0}, []float64{1e-4, 1e-4}, 1.0, 0.5, 1e-10, 1)
+		if err != numericalanalysis.ErrDidNotConverge {
+			t.Errorf("err = %v, want ErrDidNotConverge", err)
+		}
+	})
+}
+
+func TestBFGSUpdate(t *testing.T) {
+	approxEq := func(a, b, tol float64) bool { return math.Abs(a-b) < tol }
+
+	t.Run("identity update", func(t *testing.T) {
+		// B=I, s=[1,0], y=[2,0]  →  B_new = [[2,0],[0,1]]
+		B := numericalanalysis.IdentityMatrix(2)
+		s := []float64{1, 0}
+		y := []float64{2, 0}
+		Bnew, err := numericalanalysis.BFGSUpdate(B, s, y)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !approxEq(Bnew[0][0], 2, 1e-10) || !approxEq(Bnew[1][1], 1, 1e-10) ||
+			!approxEq(Bnew[0][1], 0, 1e-10) || !approxEq(Bnew[1][0], 0, 1e-10) {
+			t.Errorf("unexpected Bnew: %v", Bnew)
+		}
+	})
+
+	t.Run("symmetry preserved", func(t *testing.T) {
+		B := numericalanalysis.Matrix{
+			{4, 1},
+			{1, 3},
+		}
+		s := []float64{0.5, 0.5}
+		y := []float64{1.0, 2.0}
+		Bnew, err := numericalanalysis.BFGSUpdate(B, s, y)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !approxEq(Bnew[0][1], Bnew[1][0], 1e-10) {
+			t.Errorf("B not symmetric: %v", Bnew)
+		}
+	})
+
+	t.Run("Powell damping applied", func(t *testing.T) {
+		// yᵀs < 0.2 * sᵀBs should trigger damping without error
+		B := numericalanalysis.IdentityMatrix(2)
+		s := []float64{1, 0}
+		y := []float64{-0.5, 0} // yᵀs = -0.5 < 0.2
+		_, err := numericalanalysis.BFGSUpdate(B, s, y)
+		if err != nil {
+			t.Errorf("expected damping to rescue, got error: %v", err)
+		}
+	})
+
+	t.Run("wrong input - size mismatch", func(t *testing.T) {
+		B := numericalanalysis.IdentityMatrix(2)
+		_, err := numericalanalysis.BFGSUpdate(B, []float64{1}, []float64{1, 2})
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput", err)
+		}
+	})
+
+	t.Run("wrong input - sBs <= 0", func(t *testing.T) {
+		// B = -I makes sᵀBs = -||s||² < 0
+		B := numericalanalysis.IdentityMatrix(2).MulNumber(-1)
+		s := []float64{1, 0}
+		y := []float64{1, 0}
+		_, err := numericalanalysis.BFGSUpdate(B, s, y)
+		if err != numericalanalysis.ErrWrongInput {
+			t.Errorf("err = %v, want ErrWrongInput (sBs <= 0)", err)
+		}
+	})
 }
